@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@docusaurus/types": "^3.9.2"
+  }
+}

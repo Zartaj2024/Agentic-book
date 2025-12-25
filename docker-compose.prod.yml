@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL}
+      - PORT=8000
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+    networks:
+      - app-network
+    # For production, disable volume mounts to avoid conflicts with built image
+    volumes: []
+
+  docs-site:
+    build:
+      context: ./docs-site
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - app-network
+    # Production build doesn't need volume mounts
+    volumes: []
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  qdrant_data:

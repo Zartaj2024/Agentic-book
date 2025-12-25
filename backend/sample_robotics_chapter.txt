@@ -1,0 +1,31 @@
+# Introduction to Robotics
+
+## What is Robotics?
+
+Robotics is an interdisciplinary branch of engineering and science that includes mechanical engineering, electrical engineering, computer science, and others. Robotics deals with the design, construction, operation, and use of robots, as well as computer systems for their control, sensory feedback, and information processing.
+
+These technologies are used to develop machines that can substitute for humans. Robots can be used in any situation and for any purpose, but today many are used in dangerous environments (including bomb detection and deactivation), manufacturing processes, or where humans cannot survive (like in space exploration).
+
+## Types of Robots
+
+There are various types of robots designed for different purposes:
+
+1. **Industrial Robots**: Used in manufacturing and production lines
+2. **Service Robots**: Assist humans in daily tasks
+3. **Medical Robots**: Assist in surgeries and patient care
+4. **Military Robots**: Used for reconnaissance and combat operations
+5. **Exploration Robots**: Used in space and deep sea exploration
+
+## Robot Components
+
+A typical robot consists of several key components:
+
+- **Sensors**: To perceive the environment
+- **Actuators**: To move and manipulate objects
+- **Control Systems**: To process information and make decisions
+- **Power Supply**: To operate the robot
+- **Structure**: The physical body of the robot
+
+## The Future of Robotics
+
+Robotics is rapidly advancing with developments in artificial intelligence, machine learning, and materials science. Future robots will be more autonomous, intelligent, and capable of complex tasks. They will play an increasingly important role in society, from household assistance to industrial automation and beyond.
