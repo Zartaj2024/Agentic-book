@@ -16,6 +16,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 # Import routers
 from routers import chat
+from routers import auth
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -54,6 +55,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 
 @app.get("/")
 @limiter.limit(config.ROOT_RATE_LIMIT)  # Limit to root requests per minute per IP

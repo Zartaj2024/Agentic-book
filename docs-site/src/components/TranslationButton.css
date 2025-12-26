@@ -1,0 +1,99 @@
+.translation-container {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.translation-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.translation-button:hover:not(:disabled) {
+  background-color: #3a5ce5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.translation-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.translation-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.translation-button.translated {
+  background-color: #28a745;
+}
+
+.translation-button.translated:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.translation-button.loading {
+  background-color: #6c757d;
+}
+
+.translation-icon {
+  fill: white;
+}
+
+.translation-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.translation-button-text {
+  font-weight: 500;
+}
+
+.translation-error {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+/* Right-to-left styling for Urdu content */
+.urdu-content {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Style for when content is translated */
+.translated-content {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .translation-container {
+    margin: 0.75rem 0;
+  }
+  
+  .translation-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}

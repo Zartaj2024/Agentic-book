@@ -45,6 +45,12 @@ class Config:
     INGEST_RATE_LIMIT: str = os.getenv("INGEST_RATE_LIMIT", "5/hour")
     MONITORING_RATE_LIMIT: str = os.getenv("MONITORING_RATE_LIMIT", "10/minute")
 
+    # Translation API configuration
+    TRANSLATION_API_KEY: Optional[str] = os.getenv("TRANSLATION_API_KEY")
+    TRANSLATION_PROVIDER: str = os.getenv("TRANSLATION_PROVIDER", "google")  # Default to Google
+    TRANSLATION_RATE_LIMIT: str = os.getenv("TRANSLATION_RATE_LIMIT", "50/hour")  # Limit translation requests
+    TRANSLATION_CACHE_TTL: int = int(os.getenv("TRANSLATION_CACHE_TTL", "86400"))  # Cache TTL in seconds (default 24 hours)
+
 # Validate required environment variables
 def validate_config():
     required_vars = ["QDRANT_URL", "DATABASE_URL", "LLM_API_KEY"]
