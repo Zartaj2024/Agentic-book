@@ -15,9 +15,9 @@ def test_syntax():
     print("Testing syntax of modified files...")
     
     files_to_test = [
-        "D:\\zartaj\\Agentic-book\\backend\\routers\\chat.py",
-        "D:\\zartaj\\Agentic-book\\backend\\config.py",
-        "D:\\zartaj\\Agentic-book\\test_openai_integration.py"
+        "backend/routers/chat.py",
+        "backend/config.py",
+        "test_openai_integration.py"
     ]
     
     for file_path in files_to_test:
