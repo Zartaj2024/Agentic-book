@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 import os
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -64,10 +66,33 @@ app.add_middleware(
 # Include routers
 app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
 
-@app.get("/")
-@limiter.limit(config.ROOT_RATE_LIMIT)  # Limit to root requests per minute per IP
-def read_root(request: Request):
-    return {"message": "Physical AI Book API is running!"}
+# Serve frontend static files if they exist
+frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend-build")
+if os.path.exists(frontend_path):
+    app.mount("/docs", StaticFiles(directory=frontend_path, html=True), name="frontend")
+
+    @app.get("/")
+    @limiter.limit(config.ROOT_RATE_LIMIT)
+    async def serve_frontend(request: Request):
+        return FileResponse(os.path.join(frontend_path, "index.html"))
+
+    # Catch-all to support Docusaurus client-side routing
+    @app.get("/{full_path:path}")
+    async def catch_all(request: Request, full_path: str):
+        # Don't catch API routes
+        if full_path.startswith("api/v1") or full_path.startswith("health"):
+            return None
+
+        # Check if file exists, if not serve index.html
+        local_file = os.path.join(frontend_path, full_path)
+        if os.path.isfile(local_file):
+            return FileResponse(local_file)
+        return FileResponse(os.path.join(frontend_path, "index.html"))
+else:
+    @app.get("/")
+    @limiter.limit(config.ROOT_RATE_LIMIT)  # Limit to root requests per minute per IP
+    def read_root(request: Request):
+        return {"message": "Physical AI Book API is running! (Frontend not found)"}
 
 @app.get("/health")
 @limiter.limit(config.HEALTH_RATE_LIMIT)  # Limit to health check requests per minute per IP

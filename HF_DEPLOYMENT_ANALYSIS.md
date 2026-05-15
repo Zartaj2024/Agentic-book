@@ -65,8 +65,37 @@ Deploy the Backend as a "Docker Space" and the Frontend as a "Static Space".
 ## Summary of Analysis
 The repository is **ready to deploy** with minimal effort. It follows modern best practices (containerization, environment-based configuration, modular architecture) that align well with Hugging Face's infrastructure.
 
-### Quick Start for HF Deployment:
-1. Create a new Space on Hugging Face (Docker SDK).
-2. Set `PORT=7860` in the Space variables.
-3. Configure your API keys (`LLM_API_KEY`, `QDRANT_API_KEY`, etc.) as Secrets.
-4. Point the Space to the `backend/Dockerfile` or a new root-level `Dockerfile` that combines both tiers.
+### Step-by-Step Deployment Guide (Unified Strategy)
+
+I have implemented a **Unified Deployment Strategy** which is the easiest way to get everything running on Hugging Face.
+
+1.  **Create the Space**:
+    - Go to [Hugging Face Spaces](https://huggingface.co/spaces) and click **"Create new Space"**.
+    - Give it a name (e.g., `physical-ai-book`).
+    - Select **Docker** as the SDK.
+    - Choose the **"Blank"** template.
+
+2.  **Configure Secrets**:
+    - In your Space settings, go to **"Variables and secrets"**.
+    - Add the following **Secrets** (Required):
+        - `LLM_API_KEY`: Your API key for OpenAI/Groq/Gemini.
+        - `QDRANT_URL`: Your Qdrant cluster URL.
+        - `QDRANT_API_KEY`: Your Qdrant API key.
+        - `DATABASE_URL`: Your Neon Postgres connection string.
+    - Add the following **Variables** (Optional/Recommended):
+        - `LLM_PROVIDER`: `openai`, `groq`, or `gemini` (default: `openai`).
+        - `DOCUSAURUS_BACKEND_API_URL`: Leave this **blank** for unified deployment (it will use relative paths).
+
+3.  **Upload the Code**:
+    - You can either use the HF web interface or Git to push the code.
+    - The Space will automatically detect the root-level `Dockerfile` I created.
+
+4.  **Wait for Build**:
+    - Hugging Face will build the frontend (Docusaurus) and then the backend (FastAPI).
+    - Once the "Running" status appears, your interactive textbook will be live!
+
+### Technical Details of the Unified Build
+- **Port**: The application now uses port **7860**, satisfying Hugging Face's requirement.
+- **Serving**: The FastAPI backend is now configured to serve the frontend static files from the root path (`/`).
+- **Routing**: Docusaurus client-side routing is supported via a catch-all route in the backend.
+- **API**: The RAG API remains accessible at `/api/v1/chat`.
