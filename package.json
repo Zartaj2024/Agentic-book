@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@docusaurus/types": "^3.9.2"
+    "@docusaurus/types": "^3.9.2",
+    "qwen": "^0.0.0"
   }
 }
