@@ -94,6 +94,18 @@ I have implemented a **Unified Deployment Strategy** which is the easiest way to
     - Hugging Face will build the frontend (Docusaurus) and then the backend (FastAPI).
     - Once the "Running" status appears, your interactive textbook will be live!
 
+### Automatic Deployment (CI/CD)
+
+I have added a GitHub Action to automate the deployment process. Every time you push to the `main` branch, the code will automatically sync to Hugging Face.
+
+**Setup Instructions:**
+1.  **Generate HF Token**: Go to [Hugging Face Settings](https://huggingface.co/settings/tokens) and create a "Write" token.
+2.  **Add GitHub Secrets**:
+    - Go to your GitHub repository **Settings** > **Secrets and variables** > **Actions**.
+    - Add `HF_TOKEN`: Your Hugging Face write token.
+    - Add `HF_SPACE_ID`: Your Space identifier (e.g., `Zartaj2024/physical-ai-book`).
+3.  **Push to Main**: The next push to your main branch will trigger the deployment automatically.
+
 ### Technical Details of the Unified Build
 - **Port**: The application now uses port **7860**, satisfying Hugging Face's requirement.
 - **Serving**: The FastAPI backend is now configured to serve the frontend static files from the root path (`/`).
