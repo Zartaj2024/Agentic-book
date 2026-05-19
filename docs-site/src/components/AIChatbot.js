@@ -49,13 +49,17 @@ const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = nu
     let fullUrl = '';
 
     try {
-      // Call the backend API - priority: props > window config > fallback
+      // Call the backend API - priority: props > window config > relative path fallback
       const apiUrl = backendUrl ||
-                    (typeof window !== 'undefined' && window.chatbotConfig ? window.chatbotConfig.API_URL : null) ||
-                    'http://localhost:8000';
+                    (typeof window !== 'undefined' && window.chatbotConfig && window.chatbotConfig.API_URL ? window.chatbotConfig.API_URL : null) ||
+                    ''; // Default to relative path for unified deployment
 
       // Ensure the URL has the correct path - backend uses /api/v1/chat
-      fullUrl = apiUrl.endsWith('/api/v1/chat') ? apiUrl : `${apiUrl}/api/v1/chat`;
+      if (apiUrl) {
+        fullUrl = apiUrl.endsWith('/api/v1/chat') ? apiUrl : `${apiUrl}/api/v1/chat`;
+      } else {
+        fullUrl = '/api/v1/chat';
+      }
 
       // Check if we're making a request to a localhost URL during development
       const isLocalhost = fullUrl.includes('localhost') || fullUrl.includes('127.0.0.1') || fullUrl.includes('0.0.0.0');

@@ -134,7 +134,7 @@ const config = {
 
 // Pass environment variables to the frontend
 const backendConfig = {
-  API_URL: process.env.DOCUSAURUS_BACKEND_API_URL || 'http://localhost:8000',
+  API_URL: process.env.DOCUSAURUS_BACKEND_API_URL || '',
 };
 
 // Extend themeConfig with backend configuration
@@ -146,7 +146,7 @@ config.themeConfig = {
 
 // Add custom fields to pass to the site
 config.customFields = {
-  BACKEND_API_URL: process.env.DOCUSAURUS_BACKEND_API_URL || 'http://localhost:8000',
+  BACKEND_API_URL: process.env.DOCUSAURUS_BACKEND_API_URL || '',
 };
 
 // Add a script to the head to configure the backend URL
@@ -158,7 +158,7 @@ config.headTags = [
     },
     innerHTML: `
       window.chatbotConfig = {
-        API_URL: "${process.env.DOCUSAURUS_BACKEND_API_URL || 'http://localhost:8000'}"
+        API_URL: "${process.env.DOCUSAURUS_BACKEND_API_URL || ''}"
       };
     `,
   }
