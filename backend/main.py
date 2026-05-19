@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
@@ -22,15 +22,24 @@ from routers import auth
 async def lifespan(app: FastAPI):
     # Startup
     from utils.database import db
-    await db.create_pool()
+    try:
+        await db.create_pool()
+    except Exception as e:
+        print(f"Warning: Could not create database pool: {e}")
 
     from utils.vector_db import vector_db
-    vector_db.create_collection()
+    try:
+        vector_db.create_collection()
+    except Exception as e:
+        print(f"Warning: Could not create vector collection: {e}")
 
     yield
 
     # Shutdown
-    await db.close_pool()
+    try:
+        await db.close_pool()
+    except Exception as e:
+        print(f"Warning: Error during database pool shutdown: {e}")
 
 # Create the FastAPI app
 app = FastAPI(
@@ -59,10 +68,10 @@ app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 
 @app.get("/")
 @limiter.limit(config.ROOT_RATE_LIMIT)  # Limit to root requests per minute per IP
-def read_root(request):
+def read_root(request: Request):
     return {"message": "Physical AI Book API is running!"}
 
 @app.get("/health")
 @limiter.limit(config.HEALTH_RATE_LIMIT)  # Limit to health check requests per minute per IP
-def health_check(request):
+def health_check(request: Request):
     return {"status": "healthy"}
