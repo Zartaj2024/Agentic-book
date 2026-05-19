@@ -9,23 +9,33 @@ RUN npm run build
 
 # 2. Build the FastAPI backend and serve the frontend
 FROM python:3.10-slim
+
+# Create a non-root user for Hugging Face compatibility
+RUN useradd -m -u 1000 user
+USER user
+ENV PATH="/home/user/.local/bin:$PATH"
+
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies (using root then switching back)
+USER root
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy backend requirements and install
-COPY backend/requirements.txt ./backend/
+COPY --chown=user backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
 # Copy backend code
-COPY backend/ ./backend/
+COPY --chown=user backend/ ./backend/
 
 # Copy built frontend from stage 1
-COPY --from=frontend-builder /app/docs-site/build ./frontend-build
+COPY --chown=user --from=frontend-builder /app/docs-site/build ./frontend-build
+
+# Switch back to the non-root user
+USER user
 
 # Set working directory to backend for execution
 WORKDIR /app/backend
@@ -38,4 +48,4 @@ ENV DOCUSAURUS_BACKEND_API_URL=""
 EXPOSE 7860
 
 # Run the application
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-7860}"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]

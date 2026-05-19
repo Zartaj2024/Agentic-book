@@ -66,6 +66,11 @@ app.add_middleware(
 # Include routers
 app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
 
+@app.get("/health")
+@limiter.limit(config.HEALTH_RATE_LIMIT)  # Limit to health check requests per minute per IP
+def health_check(request: Request):
+    return {"status": "healthy"}
+
 # Serve frontend static files if they exist
 frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend-build")
 if os.path.exists(frontend_path):
@@ -79,8 +84,9 @@ if os.path.exists(frontend_path):
     # Catch-all to support Docusaurus client-side routing
     @app.get("/{full_path:path}")
     async def catch_all(request: Request, full_path: str):
-        # Don't catch API routes
-        if full_path.startswith("api/v1") or full_path.startswith("health"):
+        # Don't catch API routes or health check
+        if full_path.startswith("api/v1") or full_path == "health":
+            # Let it fall through to the actual route handlers
             return None
 
         # Check if file exists, if not serve index.html
@@ -93,8 +99,3 @@ else:
     @limiter.limit(config.ROOT_RATE_LIMIT)  # Limit to root requests per minute per IP
     def read_root(request: Request):
         return {"message": "Physical AI Book API is running! (Frontend not found)"}
-
-@app.get("/health")
-@limiter.limit(config.HEALTH_RATE_LIMIT)  # Limit to health check requests per minute per IP
-def health_check(request: Request):
-    return {"status": "healthy"}
