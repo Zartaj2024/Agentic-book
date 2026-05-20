@@ -23,7 +23,7 @@ class Config:
     # Provider-specific models
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
     GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama3-70b-8192")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-pro")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
     # Embedding configuration
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")

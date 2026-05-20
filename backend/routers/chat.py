@@ -166,16 +166,24 @@ async def chat_endpoint(request: Request, chat_request: ChatRequest):
         session_id = chat_request.session_id or str(uuid.uuid4())
 
         # Embed the user query
-        query_embedding = embedding_model.encode_single(chat_request.query)
+        try:
+            query_embedding = embedding_model.encode_single(chat_request.query)
+        except Exception as e:
+            logger.error(f"Embedding error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"AI brain failed to process text: {str(e)}")
 
         # Track the vector search operation
         monitor.track_vector_search()
 
         # Search the vector database for relevant chunks
-        search_results = await vector_db.search_vectors(
-            query_vector=query_embedding,
-            limit=config.RAG_TOP_K
-        )
+        try:
+            search_results = await vector_db.search_vectors(
+                query_vector=query_embedding,
+                limit=config.RAG_TOP_K
+            )
+        except Exception as e:
+            logger.error(f"Qdrant search error: {str(e)}")
+            raise HTTPException(status_code=502, detail=f"Knowledge base is unreachable: {str(e)}")
 
         if not search_results:
             response_text = "I couldn't find relevant content in the textbook to answer your question. Please try rephrasing or consult the textbook directly."
