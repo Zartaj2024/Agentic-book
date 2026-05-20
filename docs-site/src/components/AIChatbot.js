@@ -76,7 +76,14 @@ const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = nu
       });
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        let errorDetail = '';
+        try {
+          const errorData = await response.json();
+          errorDetail = errorData.detail || errorData.message || JSON.stringify(errorData);
+        } catch (e) {
+          errorDetail = await response.text();
+        }
+        throw new Error(`API error: ${response.status} - ${errorDetail}`);
       }
 
       const data = await response.json();

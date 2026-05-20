@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Dict, Any
 import os
 from dotenv import load_dotenv
+from fastapi import HTTPException
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -52,7 +53,7 @@ class APIMonitor:
 
         if self.request_count >= self.request_daily_limit:
             logger.error(f"Request limit exceeded: {self.request_count}/{self.request_daily_limit}")
-            raise Exception("Daily request limit exceeded")
+            raise HTTPException(status_code=429, detail="Daily request limit exceeded")
 
     def track_llm_call(self):
         """Track a call to the LLM API"""
@@ -65,7 +66,7 @@ class APIMonitor:
 
         if self.llm_calls_count >= self.llm_daily_limit:
             logger.error(f"LLM API limit exceeded: {self.llm_calls_count}/{self.llm_daily_limit}")
-            raise Exception("Daily LLM API limit exceeded")
+            raise HTTPException(status_code=429, detail="Daily LLM API limit exceeded")
 
     def track_vector_search(self):
         """Track a vector database search operation"""
@@ -78,7 +79,7 @@ class APIMonitor:
 
         if self.vector_searches_count >= self.vector_search_daily_limit:
             logger.error(f"Vector search limit exceeded: {self.vector_searches_count}/{self.vector_search_daily_limit}")
-            raise Exception("Daily vector search limit exceeded")
+            raise HTTPException(status_code=429, detail="Daily vector search limit exceeded")
 
     def get_usage_report(self) -> Dict[str, Any]:
         """Get current usage statistics"""

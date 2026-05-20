@@ -29,7 +29,7 @@ async def call_llm_api(prompt: str) -> str:
     """
     llm_api_key = os.getenv("LLM_API_KEY")
     if not llm_api_key:
-        raise ValueError("LLM_API_KEY environment variable is not set")
+        raise HTTPException(status_code=500, detail="LLM_API_KEY is not configured in the Space settings.")
 
     # Determine which LLM provider to use based on configuration
     llm_provider = os.getenv("LLM_PROVIDER", "openai")  # Default to OpenAI
@@ -92,9 +92,10 @@ async def call_llm_api(prompt: str) -> str:
                 )
 
                 if response.status_code != 200:
+                    logger.error(f"Gemini API error ({response.status_code}): {response.text}")
                     raise HTTPException(
                         status_code=response.status_code,
-                        detail=f"Gemini API error: {response.text}"
+                        detail=f"Gemini API returned an error: {response.text}"
                     )
 
                 result = response.json()
@@ -118,11 +119,11 @@ async def call_llm_api(prompt: str) -> str:
                         detail=f"Unexpected response format from Gemini API: {result}, Error: {str(e)}"
                     )
             else:
-                # Default to OpenAI format
+                # Default to OpenAI format for unknown providers
                 api_url = "https://api.openai.com/v1/chat/completions"
 
             # For OpenAI and Groq (which uses OpenAI-compatible format)
-            if llm_provider in ["openai", "groq"]:
+            if llm_provider in ["openai", "groq"] or llm_provider not in ["gemini"]:
                 response = await client.post(
                     api_url,
                     json=payload,
@@ -131,9 +132,10 @@ async def call_llm_api(prompt: str) -> str:
                 )
 
                 if response.status_code != 200:
+                    logger.error(f"{llm_provider} API error ({response.status_code}): {response.text}")
                     raise HTTPException(
                         status_code=response.status_code,
-                        detail=f"LLM API error: {response.text}"
+                        detail=f"{llm_provider} API returned an error: {response.text}"
                     )
 
                 result = response.json()
@@ -211,8 +213,13 @@ async def chat_endpoint(request: Request, chat_request: ChatRequest):
             sources=sources,
             session_id=session_id
         )
+    except HTTPException:
+        # Re-raise HTTPExceptions as-is
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing chat request: {str(e)}")
+        import traceback
+        logger.error(f"Unexpected error in chat endpoint: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 @router.post("/ingest", response_model=IngestResponse)
