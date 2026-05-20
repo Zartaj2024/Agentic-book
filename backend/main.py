@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -25,8 +25,9 @@ async def lifespan(app: FastAPI):
     from utils.database import db
     try:
         await db.create_pool()
+        await db.init_db()
     except Exception as e:
-        print(f"Warning: Could not create database pool: {e}")
+        print(f"Warning: Could not initialize database: {e}")
 
     from utils.vector_db import vector_db
     try:
@@ -86,8 +87,8 @@ if os.path.exists(frontend_path):
     async def catch_all(request: Request, full_path: str):
         # Don't catch API routes or health check
         if full_path.startswith("api/v1") or full_path == "health":
-            # Let it fall through to the actual route handlers
-            return None
+            # Signal to FastAPI to continue looking for routes or return 404
+            raise HTTPException(status_code=404, detail="Not Found")
 
         # Check if file exists, if not serve index.html
         local_file = os.path.join(frontend_path, full_path)

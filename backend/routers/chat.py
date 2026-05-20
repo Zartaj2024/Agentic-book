@@ -141,13 +141,13 @@ async def call_llm_api(prompt: str) -> str:
 
         except httpx.RequestError as e:
             raise HTTPException(
-                status_code=500,
-                detail=f"Error calling LLM API: {str(e)}"
+                status_code=503,
+                detail=f"LLM Provider {llm_provider} is unreachable: {str(e)}"
             )
         except KeyError as e:
             raise HTTPException(
-                status_code=500,
-                detail=f"Invalid response format from LLM API: {str(e)}"
+                status_code=502,
+                detail=f"Invalid response format from {llm_provider}: {str(e)}"
             )
 
 @router.post("/chat", response_model=ChatResponse)

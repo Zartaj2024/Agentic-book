@@ -48,13 +48,43 @@ class DatabaseConnection:
             except Exception as e:
                 logger.error(f"Error closing database connection pool: {e}")
 
-    async def log_chat_interaction(self, user_query: str, bot_response: str, session_id: str, context_used: dict = None):
-        """Log a chat interaction to the database"""
+    async def init_db(self):
+        """Initialize the database schema if it doesn't exist"""
         if not self.pool:
             await self.create_pool()
+
+        if not self.pool:
+            logger.warning("Cannot initialize DB: Pool not available.")
+            return
+
+        try:
+            async with self.pool.acquire() as conn:
+                await conn.execute("""
+                    CREATE TABLE IF NOT EXISTS chat_history (
+                        id SERIAL PRIMARY KEY,
+                        user_query TEXT NOT NULL,
+                        bot_response TEXT NOT NULL,
+                        session_id TEXT NOT NULL,
+                        context_used JSONB DEFAULT '{}',
+                        timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_chat_session_id ON chat_history(session_id);
+                """)
+                logger.info("Database schema verified/created successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize database schema: {e}")
+
+    async def log_chat_interaction(self, user_query: str, bot_response: str, session_id: str, context_used: dict = None):
+        """Log a chat interaction to the database"""
+        try:
             if not self.pool:
-                logger.warning("Cannot log interaction: Database pool is not initialized.")
-                return None
+                await self.create_pool()
+                if not self.pool:
+                    logger.warning("Cannot log interaction: Database pool is not initialized.")
+                    return None
+        except Exception as e:
+            logger.error(f"Error initializing pool during logging: {e}")
+            return None
 
         try:
             async with self.pool.acquire() as conn:
