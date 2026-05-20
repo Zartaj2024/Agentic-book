@@ -29,9 +29,9 @@ jobs:
           rm -f Gemini_Generated_Image_950gvb950gvb950g.png textbook.pdf
 
           # Initialize new repo and commit
-          git init
+          git init -b main
           git add .
-          git commit -m "Deploy Physical AI Book to Hugging Face (Clean)"
+          git commit -m "Deploy Physical AI Book to Hugging Face (Clean Build)"
 
-          # Force push to HF
-          git push https://x:$HF_TOKEN@huggingface.co/spaces/${{ secrets.HF_SPACE_ID }} master:main --force
+          # Force push to HF main
+          git push https://x:$HF_TOKEN@huggingface.co/spaces/${{ secrets.HF_SPACE_ID }} main --force
