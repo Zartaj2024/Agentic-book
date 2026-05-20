@@ -55,7 +55,10 @@ def validate_config():
             missing_vars.append(var)
 
     if missing_vars:
-        raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+        # In production/deployment, we log a warning instead of crashing.
+        # This allows the app to serve the frontend textbook even if the AI backend isn't ready.
+        print(f"CRITICAL WARNING: Missing required environment variables: {', '.join(missing_vars)}")
+        print("The AI Chatbot functionality will be unavailable until these are set in the Space settings.")
 
 # Validate configuration on import
 validate_config()
