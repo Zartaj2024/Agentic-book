@@ -82,7 +82,7 @@ async def call_llm_api(prompt: str) -> str:
                     }
                 }
                 # Update headers for Gemini
-                gemini_api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{os.getenv('GEMINI_MODEL', 'gemini-pro')}:generateContent?key={llm_api_key}"
+                gemini_api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={llm_api_key}"
                 gemini_headers = {"Content-Type": "application/json"}
                 response = await client.post(
                     gemini_api_url,
