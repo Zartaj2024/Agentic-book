@@ -1,6 +1,6 @@
 # Multi-stage build for Physical AI Book
 # 1. Build the Docusaurus frontend
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 WORKDIR /app/docs-site
 COPY docs-site/package*.json ./
 RUN npm ci
