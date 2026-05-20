@@ -8,11 +8,30 @@ jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push https://x:$HF_TOKEN@huggingface.co/spaces/${{ secrets.HF_SPACE_ID }} HEAD:main --force
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+          # Create a temporary directory to build a clean state
+          mkdir ../hf-sync-temp
+          cp -R . ../hf-sync-temp/
+          cd ../hf-sync-temp
+
+          # Remove .git and offending files
+          rm -rf .git
+          rm -f Gemini_Generated_Image_950gvb950gvb950g.png textbook.pdf
+
+          # Initialize new repo and commit
+          git init
+          git add .
+          git commit -m "Deploy Physical AI Book to Hugging Face (Clean)"
+
+          # Force push to HF
+          git push https://x:$HF_TOKEN@huggingface.co/spaces/${{ secrets.HF_SPACE_ID }} master:main --force
