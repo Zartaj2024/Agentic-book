@@ -18,7 +18,8 @@ class DatabaseConnection:
     async def create_pool(self):
         """Create a connection pool to the database"""
         if not self.database_url:
-            raise ValueError("DATABASE_URL environment variable is not set")
+            logger.warning("DATABASE_URL environment variable is not set. Chat history logging will be unavailable.")
+            return
 
         try:
             self.pool = await asyncpg.create_pool(
@@ -36,7 +37,7 @@ class DatabaseConnection:
         """Get a connection from the pool"""
         if not self.pool:
             await self.create_pool()
-        return self.pool
+        return self.pool if self.pool else None
 
     async def close_pool(self):
         """Close the connection pool"""
@@ -51,6 +52,9 @@ class DatabaseConnection:
         """Log a chat interaction to the database"""
         if not self.pool:
             await self.create_pool()
+            if not self.pool:
+                logger.warning("Cannot log interaction: Database pool is not initialized.")
+                return None
 
         try:
             async with self.pool.acquire() as conn:

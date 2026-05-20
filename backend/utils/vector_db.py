@@ -17,7 +17,11 @@ class VectorDB:
         self.qdrant_api_key = os.getenv("QDRANT_API_KEY")
 
         if not self.qdrant_url:
-            raise ValueError("QDRANT_URL environment variable is not set")
+            logger.warning("QDRANT_URL environment variable is not set. Vector database features will be unavailable.")
+            self.client = None
+            self.collection_name = "textbook_knowledge"
+            self.vector_size = 384
+            return
 
         try:
             # Initialize Qdrant client
@@ -40,6 +44,10 @@ class VectorDB:
 
     def create_collection(self):
         """Create the textbook knowledge collection if it doesn't exist"""
+        if not self.client:
+            logger.warning("Cannot create collection: Qdrant client is not initialized.")
+            return
+
         try:
             # Check if collection exists
             self.client.get_collection(self.collection_name)
@@ -57,6 +65,10 @@ class VectorDB:
 
     async def upsert_vectors(self, points: List[Dict]):
         """Upsert vectors to the collection"""
+        if not self.client:
+            logger.error("Cannot upsert vectors: Qdrant client is not initialized.")
+            return
+
         try:
             # Prepare points for upsert
             qdrant_points = []
@@ -81,6 +93,10 @@ class VectorDB:
 
     async def search_vectors(self, query_vector: List[float], limit: int = 3) -> List[Dict]:
         """Search for similar vectors in the collection"""
+        if not self.client:
+            logger.warning("Cannot search vectors: Qdrant client is not initialized.")
+            return []
+
         try:
             results = self.client.search(
                 collection_name=self.collection_name,
@@ -107,6 +123,10 @@ class VectorDB:
 
     async def get_all_chunks_for_chapter(self, chapter: str) -> List[Dict]:
         """Get all chunks for a specific chapter"""
+        if not self.client:
+            logger.warning("Cannot get chunks: Qdrant client is not initialized.")
+            return []
+
         try:
             results, _ = self.client.scroll(
                 collection_name=self.collection_name,
