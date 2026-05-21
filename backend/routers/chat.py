@@ -6,6 +6,7 @@ import httpx
 from datetime import datetime
 import os
 import logging
+import traceback
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -230,7 +231,6 @@ async def chat_endpoint(request: Request, chat_request: ChatRequest):
         # Re-raise HTTPExceptions as-is
         raise
     except Exception as e:
-        import traceback
         logger.error(f"Unexpected error in chat endpoint: {str(e)}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
