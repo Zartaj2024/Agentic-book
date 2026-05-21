@@ -5,6 +5,7 @@ import asyncio
 import httpx
 from datetime import datetime
 import os
+import logging
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -14,6 +15,10 @@ from utils.vector_db import vector_db
 from utils.embedding import embedding_model
 from utils.monitoring import monitor
 from config import config
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Initialize rate limiter for this router
 limiter = Limiter(key_func=get_remote_address)

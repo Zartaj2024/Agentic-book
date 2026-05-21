@@ -98,11 +98,16 @@ class VectorDB:
             return []
 
         try:
-            results = self.client.search(
+            # Use the universal query method which is more robust in newer qdrant-client versions
+            # It replaces search, recommend, and discover.
+            response = self.client.query_points(
                 collection_name=self.collection_name,
-                query_vector=query_vector,
+                query=query_vector,
                 limit=limit
             )
+
+            # Extract points from the QueryResponse
+            results = response.points
 
             # Extract content and metadata from results
             search_results = []
@@ -118,8 +123,27 @@ class VectorDB:
             logger.info(f"Search completed, found {len(search_results)} results")
             return search_results
         except Exception as e:
-            logger.error(f"Search failed: {e}")
-            raise
+            # Fallback to search if query_points fails (for backward compatibility if needed)
+            try:
+                logger.info("query_points failed, attempting fallback to search...")
+                results = self.client.search(
+                    collection_name=self.collection_name,
+                    query_vector=query_vector,
+                    limit=limit
+                )
+                search_results = []
+                for result in results:
+                    search_results.append({
+                        "id": result.id,
+                        "content": result.payload.get("content", ""),
+                        "chapter": result.payload.get("chapter", ""),
+                        "source_file": result.payload.get("source_file", ""),
+                        "score": result.score
+                    })
+                return search_results
+            except Exception as inner_e:
+                logger.error(f"Search failed completely: {e} | Fallback error: {inner_e}")
+                raise
 
     async def get_all_chunks_for_chapter(self, chapter: str) -> List[Dict]:
         """Get all chunks for a specific chapter"""
