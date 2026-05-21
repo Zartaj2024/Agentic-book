@@ -7,6 +7,7 @@ from datetime import datetime
 import os
 import logging
 import traceback
+from huggingface_hub import AsyncInferenceClient
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -111,39 +112,32 @@ async def call_llm_api(prompt: str) -> str:
                         detail=f"Unexpected response format from Gemini API: {result}"
                     )
             elif llm_provider == "huggingface":
-                # Hugging Face Serverless Inference API (OpenAI-compatible)
-                # We try both .huggingface.co and .hf.co due to intermittent DNS issues in some environments
-                endpoints = [
-                    f"https://api-inference.huggingface.co/models/{model}/v1/chat/completions",
-                    f"https://api-inference.hf.co/models/{model}/v1/chat/completions"
-                ]
+                # Use huggingface_hub AsyncInferenceClient for better robustness and automatic endpoint discovery
+                try:
+                    hf_client = AsyncInferenceClient(
+                        model=model,
+                        token=llm_api_key,
+                        timeout=30
+                    )
 
-                last_error = None
-                for api_url in endpoints:
-                    try:
-                        logger.info(f"Attempting to call Hugging Face API at {api_url}")
-                        response = await client.post(
-                            api_url,
-                            json=payload,
-                            headers=headers,
-                            timeout=30.0
-                        )
+                    messages = [
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt}
+                    ]
 
-                        if response.status_code == 200:
-                            result = response.json()
-                            return result["choices"][0]["message"]["content"].strip()
+                    response = await hf_client.chat_completion(
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens
+                    )
 
-                        logger.warning(f"Hugging Face API at {api_url} returned {response.status_code}: {response.text}")
-                        last_error = f"API returned {response.status_code}: {response.text}"
-                    except httpx.RequestError as e:
-                        logger.warning(f"Failed to reach Hugging Face API at {api_url}: {str(e)}")
-                        last_error = str(e)
-                        continue
-
-                raise HTTPException(
-                    status_code=503,
-                    detail=f"Hugging Face API is unreachable or returned an error. Last error: {last_error}"
-                )
+                    return response.choices[0].message.content.strip()
+                except Exception as e:
+                    logger.error(f"Hugging Face InferenceClient error: {str(e)}")
+                    raise HTTPException(
+                        status_code=503,
+                        detail=f"Hugging Face Inference service error: {str(e)}"
+                    )
             else:
                 # Default to OpenAI format for others
                 api_url = "https://api.openai.com/v1/chat/completions"
