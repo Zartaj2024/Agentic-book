@@ -46,7 +46,8 @@ async def call_llm_api(prompt: str) -> str:
     model_map = {
         "openai": config.OPENAI_MODEL,
         "groq": config.GROQ_MODEL,
-        "gemini": config.GEMINI_MODEL
+        "gemini": config.GEMINI_MODEL,
+        "huggingface": config.HF_MODEL
     }
     model = model_map.get(llm_provider, model_map["openai"])
 
@@ -74,8 +75,7 @@ async def call_llm_api(prompt: str) -> str:
             elif llm_provider == "groq":
                 api_url = "https://api.groq.com/openai/v1/chat/completions"
             elif llm_provider == "gemini":
-                # Note: Gemini has a different API format, this is for compatibility
-                # For Gemini, we need to transform the payload
+                # Note: Gemini has a different API format
                 gemini_payload = {
                     "contents": [{
                         "parts": [
@@ -87,13 +87,11 @@ async def call_llm_api(prompt: str) -> str:
                         "maxOutputTokens": max_tokens
                     }
                 }
-                # Update headers for Gemini
                 gemini_api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={llm_api_key}"
-                gemini_headers = {"Content-Type": "application/json"}
                 response = await client.post(
                     gemini_api_url,
                     json=gemini_payload,
-                    headers=gemini_headers,
+                    headers={"Content-Type": "application/json"},
                     timeout=30.0
                 )
 
@@ -106,30 +104,37 @@ async def call_llm_api(prompt: str) -> str:
 
                 result = response.json()
                 try:
-                    if "candidates" in result and len(result["candidates"]) > 0:
-                        if "content" in result["candidates"][0] and "parts" in result["candidates"][0]["content"]:
-                            return result["candidates"][0]["content"]["parts"][0]["text"].strip()
-                        else:
-                            raise HTTPException(
-                                status_code=500,
-                                detail=f"No content found in Gemini response: {result}"
-                            )
-                    else:
-                        raise HTTPException(
-                            status_code=500,
-                            detail=f"No candidates found in Gemini response: {result}"
-                        )
+                    return result["candidates"][0]["content"]["parts"][0]["text"].strip()
                 except (KeyError, IndexError) as e:
                     raise HTTPException(
                         status_code=500,
-                        detail=f"Unexpected response format from Gemini API: {result}, Error: {str(e)}"
+                        detail=f"Unexpected response format from Gemini API: {result}"
                     )
+            elif llm_provider == "huggingface":
+                # Hugging Face Serverless Inference API (OpenAI-compatible)
+                api_url = f"https://api-inference.huggingface.co/models/{model}/v1/chat/completions"
+                response = await client.post(
+                    api_url,
+                    json=payload,
+                    headers=headers,
+                    timeout=30.0
+                )
+
+                if response.status_code != 200:
+                    logger.error(f"Hugging Face API error ({response.status_code}): {response.text}")
+                    raise HTTPException(
+                        status_code=response.status_code,
+                        detail=f"Hugging Face API returned an error: {response.text}"
+                    )
+
+                result = response.json()
+                return result["choices"][0]["message"]["content"].strip()
             else:
-                # Default to OpenAI format for unknown providers
+                # Default to OpenAI format for others
                 api_url = "https://api.openai.com/v1/chat/completions"
 
-            # For OpenAI and Groq (which uses OpenAI-compatible format)
-            if llm_provider in ["openai", "groq"] or llm_provider not in ["gemini"]:
+            # For OpenAI and Groq (standard compatible flow)
+            if llm_provider in ["openai", "groq"]:
                 response = await client.post(
                     api_url,
                     json=payload,
