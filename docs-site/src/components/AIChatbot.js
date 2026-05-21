@@ -49,13 +49,18 @@ const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = nu
     let fullUrl = '';
 
     try {
-      // Call the backend API - priority: props > window config > absolute origin fallback
+      // Call the backend API - priority: props > window config > Truly relative fallback
+      // For Hugging Face Spaces (unified deployment), using a truly relative path ('/api/v1/chat')
+      // is the most robust way to communicate with the backend on the same host.
       const apiUrl = backendUrl ||
-                    (typeof window !== 'undefined' && window.chatbotConfig && window.chatbotConfig.API_URL ? window.chatbotConfig.API_URL : null) ||
-                    (typeof window !== 'undefined' ? window.location.origin : '');
+                    (typeof window !== 'undefined' && window.chatbotConfig && window.chatbotConfig.API_URL ? window.chatbotConfig.API_URL : null);
 
-      // Ensure the URL has the correct path - backend uses /api/v1/chat
-      fullUrl = apiUrl.endsWith('/api/v1/chat') ? apiUrl : `${apiUrl}/api/v1/chat`;
+      if (apiUrl) {
+        fullUrl = apiUrl.endsWith('/api/v1/chat') ? apiUrl : `${apiUrl}/api/v1/chat`;
+      } else {
+        // Default to a truly relative path for unified deployment
+        fullUrl = '/api/v1/chat';
+      }
 
       // Check if we're making a request to a localhost URL during development
       const isLocalhost = fullUrl.includes('localhost') || fullUrl.includes('127.0.0.1') || fullUrl.includes('0.0.0.0');
