@@ -16,7 +16,7 @@ class Config:
 
     # LLM configuration
     LLM_API_KEY: Optional[str] = os.getenv("LLM_API_KEY")
-    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "gemini")  # Default to Gemini
+    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "huggingface")  # Default to Hugging Face
     LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.3"))
     LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", "1000"))
 
