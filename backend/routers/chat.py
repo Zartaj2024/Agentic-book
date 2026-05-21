@@ -37,15 +37,15 @@ async def call_llm_api(prompt: str) -> str:
         raise HTTPException(status_code=500, detail="LLM_API_KEY is not configured in the Space settings.")
 
     # Determine which LLM provider to use based on configuration
-    llm_provider = os.getenv("LLM_PROVIDER", "openai")  # Default to OpenAI
-    temperature = float(os.getenv("LLM_TEMPERATURE", "0.3"))
-    max_tokens = int(os.getenv("LLM_MAX_TOKENS", "1000"))
+    llm_provider = config.LLM_PROVIDER
+    temperature = config.LLM_TEMPERATURE
+    max_tokens = config.LLM_MAX_TOKENS
 
     # Select model based on provider
     model_map = {
-        "openai": os.getenv("OPENAI_MODEL", "gpt-3.5-turbo"),
-        "groq": os.getenv("GROQ_MODEL", "llama3-70b-8192"),
-        "gemini": os.getenv("GEMINI_MODEL", "gemini-pro")
+        "openai": config.OPENAI_MODEL,
+        "groq": config.GROQ_MODEL,
+        "gemini": config.GEMINI_MODEL
     }
     model = model_map.get(llm_provider, model_map["openai"])
 
