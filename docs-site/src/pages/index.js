@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import styles from './index.module.css';
 
@@ -13,7 +14,7 @@ function HomepageHeader() {
       <div className="container">
         <div className={styles.heroLogoContainer}>
           <img
-            src="/img/logo.svg"
+            src={useBaseUrl('/img/logo.svg')}
             alt="Physical AI Book Logo"
             className={styles.heroLogo}
           />

@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import mimetypes
 from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 import os
@@ -12,6 +13,11 @@ from config import config
 
 # Load environment variables
 load_dotenv()
+
+# Ensure SVG and other types are registered for FileResponse
+mimetypes.init()
+mimetypes.add_type('image/svg+xml', '.svg')
+mimetypes.add_type('image/x-icon', '.ico')
 
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address)
