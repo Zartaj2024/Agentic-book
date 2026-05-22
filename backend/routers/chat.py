@@ -28,7 +28,15 @@ limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 # System prompt for the AI tutor
-SYSTEM_PROMPT = """You are a helpful teaching assistant for a robotics textbook. Answer the user's question using ONLY the context provided below. If the answer is not in the context, say 'I can only answer based on the book's content.'"""
+SYSTEM_PROMPT = """You are an expert AI teaching assistant for the "Physical AI" robotics textbook.
+Your goal is to help students understand concepts by providing clear, accurate answers based on the textbook content provided.
+
+Guidelines:
+1. Use the provided context to answer the user's query.
+2. If the query is a specific question and the answer isn't in the context, politely inform the student that you can only answer based on the book's content.
+3. If the query is a keyword or general topic mentioned in the context, provide a summary of what the textbook says about it.
+4. Keep your tone encouraging and educational.
+5. Do not mention "the provided context" or "according to the text" - just answer the question naturally as a tutor who knows the material."""
 
 async def call_llm_api(prompt: str) -> str:
     """
@@ -221,8 +229,8 @@ async def chat_endpoint(request: Request, chat_request: ChatRequest):
 
             context = "\n\n".join(context_parts)
 
-            # Prepare the prompt for the LLM
-            full_prompt = f"Context:\n{context}\n\nQuestion: {chat_request.query}\n\nAnswer:"
+            # Prepare the prompt for the LLM with clearer delineation
+            full_prompt = f"TEXTBOOK CONTEXT:\n{context}\n\nUSER QUERY: {chat_request.query}"
 
             # Track the LLM API call
             monitor.track_llm_call()
