@@ -6,7 +6,7 @@
 const config = {
   title: 'Physical AI Book',
   tagline: 'An Interactive Textbook for Robotics and AI',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.svg',
 
   // Set the production url of your site here
   url: 'http://localhost:3000/',

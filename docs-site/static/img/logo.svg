@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Definitions for Gradients -->
+  <defs>
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background / Book Base -->
+  <path d="M50 85 L15 75 L15 25 L50 35 M50 85 L85 75 L85 25 L50 35" fill="none" stroke="url(#bookGradient)" stroke-width="4" stroke-linejoin="round" />
+
+  <!-- Left Page Circuitry -->
+  <path d="M25 40 L40 40 M25 50 L35 50 M25 60 L42 60" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+  <circle cx="43" cy="40" r="1.5" fill="#4f46e5" />
+  <circle cx="38" cy="50" r="1.5" fill="#4f46e5" />
+
+  <!-- Right Page Circuitry -->
+  <path d="M75 40 L60 40 M75 50 L65 50 M75 60 L58 60" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+  <circle cx="57" cy="40" r="1.5" fill="#06b6d4" />
+  <circle cx="62" cy="50" r="1.5" fill="#06b6d4" />
+
+  <!-- Central "Agentic" Core -->
+  <circle cx="50" cy="45" r="8" fill="white" stroke="url(#bookGradient)" stroke-width="2" />
+  <text x="50" y="50" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#4f46e5">A</text>
+
+  <!-- Spine Connection -->
+  <line x1="50" y1="35" x2="50" y2="85" stroke="url(#bookGradient)" stroke-width="2" stroke-dasharray="2,2" />
+</svg>
