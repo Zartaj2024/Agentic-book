@@ -1,6 +1,7 @@
 import asyncpg
 import os
-from typing import Optional
+import json
+from typing import Optional, Any, Union, List, Dict
 from dotenv import load_dotenv
 import logging
 
@@ -74,7 +75,7 @@ class DatabaseConnection:
         except Exception as e:
             logger.error(f"Failed to initialize database schema: {e}")
 
-    async def log_chat_interaction(self, user_query: str, bot_response: str, session_id: str, context_used: dict = None):
+    async def log_chat_interaction(self, user_query: str, bot_response: str, session_id: str, context_used: Union[List, Dict, Any] = None):
         """Log a chat interaction to the database"""
         try:
             if not self.pool:
@@ -93,12 +94,15 @@ class DatabaseConnection:
                     VALUES ($1, $2, $3, $4)
                     RETURNING id, timestamp
                 """
+                # Explicitly serialize to JSON string for Postgres JSONB compatibility
+                context_json = json.dumps(context_used or [])
+
                 result = await conn.fetchrow(
                     query,
                     user_query,
                     bot_response,
                     session_id,
-                    context_used or {}
+                    context_json
                 )
                 logger.info(f"Chat interaction logged successfully with ID: {result['id'] if result else 'unknown'}")
                 return result
