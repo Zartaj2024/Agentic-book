@@ -114,8 +114,9 @@ async def call_llm_api(prompt: str) -> str:
             elif llm_provider == "huggingface":
                 # Use huggingface_hub AsyncInferenceClient for better robustness and automatic endpoint discovery
                 try:
+                    # Explicitly use the stable router base_url to avoid DNS issues with the default api-inference subdomain
                     hf_client = AsyncInferenceClient(
-                        model=model,
+                        base_url="https://router.huggingface.co",
                         token=llm_api_key,
                         timeout=30
                     )
@@ -126,6 +127,7 @@ async def call_llm_api(prompt: str) -> str:
                     ]
 
                     response = await hf_client.chat_completion(
+                        model=model,
                         messages=messages,
                         temperature=temperature,
                         max_tokens=max_tokens

@@ -24,7 +24,7 @@ class Config:
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
     GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama3-70b-8192")
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
-    HF_MODEL: str = os.getenv("HF_MODEL", "meta-llama/Llama-3.2-3B-Instruct")
+    HF_MODEL: str = os.getenv("HF_MODEL", "meta-llama/Llama-3.2-1B-Instruct")
 
     # Embedding configuration
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
