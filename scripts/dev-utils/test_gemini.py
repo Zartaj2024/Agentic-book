@@ -3,7 +3,7 @@ import requests
 import json
 import sys
 
-def test_gemini(api_key, model="gemini-1.5-flash"):
+def test_gemini(api_key, model="gemini-2.0-flash"):
     print(f"Testing Gemini model: {model}")
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
 
@@ -26,8 +26,9 @@ def test_gemini(api_key, model="gemini-1.5-flash"):
         print(f"❌ Request error: {str(e)}")
 
 if __name__ == "__main__":
-    key = input("Paste your Gemini API Key: ").strip()
+    # key = input("Paste your Gemini API Key: ").strip()
+    key = os.getenv("LLM_API_KEY")
     if not key:
-        print("No key provided.")
+        print("No key provided in env LLM_API_KEY.")
         sys.exit(1)
     test_gemini(key)

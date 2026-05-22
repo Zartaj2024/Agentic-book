@@ -40,7 +40,7 @@ Guidelines:
 
 async def call_llm_api(prompt: str) -> str:
     """
-    Call the LLM API (OpenAI, Groq, or Gemini) to generate a response
+    Call the LLM API (OpenAI, Groq, Gemini, or Hugging Face) to generate a response
     """
     llm_api_key = os.getenv("LLM_API_KEY")
     if not llm_api_key:

@@ -49,18 +49,13 @@ const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = nu
     let fullUrl = '';
 
     try {
-      // Call the backend API - priority: props > window config > Truly relative fallback
-      // For Hugging Face Spaces (unified deployment), using a truly relative path ('/api/v1/chat')
-      // is the most robust way to communicate with the backend on the same host.
+      // Call the backend API - priority: props > window config > fallback
       const apiUrl = backendUrl ||
-                    (typeof window !== 'undefined' && window.chatbotConfig && window.chatbotConfig.API_URL ? window.chatbotConfig.API_URL : null);
+                    (typeof window !== 'undefined' && window.chatbotConfig ? window.chatbotConfig.API_URL : null) ||
+                    'http://localhost:8000';
 
-      if (apiUrl) {
-        fullUrl = apiUrl.endsWith('/api/v1/chat') ? apiUrl : `${apiUrl}/api/v1/chat`;
-      } else {
-        // Default to a truly relative path for unified deployment
-        fullUrl = '/api/v1/chat';
-      }
+      // Ensure the URL has the correct path - backend uses /api/v1/chat
+      fullUrl = apiUrl.endsWith('/api/v1/chat') ? apiUrl : `${apiUrl}/api/v1/chat`;
 
       // Check if we're making a request to a localhost URL during development
       const isLocalhost = fullUrl.includes('localhost') || fullUrl.includes('127.0.0.1') || fullUrl.includes('0.0.0.0');
@@ -77,14 +72,7 @@ const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = nu
       });
 
       if (!response.ok) {
-        let errorDetail = '';
-        try {
-          const errorData = await response.json();
-          errorDetail = errorData.detail || errorData.message || JSON.stringify(errorData);
-        } catch (e) {
-          errorDetail = await response.text();
-        }
-        throw new Error(`API error: ${response.status} - ${errorDetail}`);
+        throw new Error(`API error: ${response.status}`);
       }
 
       const data = await response.json();

@@ -18,9 +18,9 @@ The **Physical AI Book** is an interactive, AI-powered textbook system designed 
 
 ## Hugging Face Readiness Assessment
 
-**Readiness Score: 10/10 (Go for Deployment)**
+**Readiness Score: 8/10**
 
-The project is now fully prepared for Hugging Face Spaces. I have implemented the necessary technical adjustments to ensure a seamless "one-click" style deployment.
+The project is highly mature and well-structured, making it a great candidate for Hugging Face Spaces. However, some technical adjustments are required for a seamless deployment.
 
 ### Recommended Deployment Strategy
 
@@ -65,52 +65,8 @@ Deploy the Backend as a "Docker Space" and the Frontend as a "Static Space".
 ## Summary of Analysis
 The repository is **ready to deploy** with minimal effort. It follows modern best practices (containerization, environment-based configuration, modular architecture) that align well with Hugging Face's infrastructure.
 
-### Step-by-Step Deployment Guide (Unified Strategy)
-
-I have implemented a **Unified Deployment Strategy** which is the easiest way to get everything running on Hugging Face.
-
-1.  **Create the Space**:
-    - Go to [Hugging Face Spaces](https://huggingface.co/spaces) and click **"Create new Space"**.
-    - Give it a name (e.g., `physical-ai-book`).
-    - Select **Docker** as the SDK.
-    - Choose the **"Blank"** template.
-
-2.  **Configure Secrets**:
-    - In your Space settings, go to **"Variables and secrets"**.
-    - Add the following **Secrets** (Required):
-        - `LLM_API_KEY`: Your API key for OpenAI/Groq/Gemini.
-        - `QDRANT_URL`: Your Qdrant cluster URL.
-        - `QDRANT_API_KEY`: Your Qdrant API key.
-        - `DATABASE_URL`: Your Neon Postgres connection string.
-    - Add the following **Variables** (Optional/Recommended):
-        - `LLM_PROVIDER`: `openai`, `groq`, or `gemini` (default: `openai`).
-        - `DOCUSAURUS_BACKEND_API_URL`: Leave this **blank** for unified deployment (it will use relative paths).
-
-3.  **Upload the Code**:
-    - You can either use the HF web interface or Git to push the code.
-    - The Space will automatically detect the root-level `Dockerfile` I created.
-
-4.  **Wait for Build**:
-    - Hugging Face will build the frontend (Docusaurus) and then the backend (FastAPI).
-    - Once the "Running" status appears, your interactive textbook will be live!
-
-### Automatic Deployment (CI/CD)
-
-I have added a GitHub Action to automate the deployment process. Every time you push to the `main` branch, the code will automatically sync to Hugging Face.
-
-**Setup Instructions:**
-1.  **Generate HF Token**: Go to [Hugging Face Settings](https://huggingface.co/settings/tokens) and create a "Write" token.
-2.  **Add GitHub Secrets**:
-    - Go to your GitHub repository **Settings** > **Secrets and variables** > **Actions**.
-    - Add `HF_TOKEN`: Your Hugging Face write token.
-    - Add `HF_SPACE_ID`: Your Space identifier (e.g., `Zartaj2024/physical-ai-book`).
-3.  **Push to Main**: The next push to your main branch will trigger the deployment automatically.
-
-### Technical Details of the Unified Build
-- **Port**: The application now uses port **7860**, satisfying Hugging Face's requirement.
-- **Serving**: The FastAPI backend is now configured to serve the frontend static files from the root path (`/`).
-- **Routing**: Docusaurus client-side routing is supported via a catch-all route in the backend.
-- **API**: The RAG API remains accessible at `/api/v1/chat`.
-- **Bug Fixes**:
-    - **Relative Paths**: Frontend now uses relative paths for API calls, eliminating the need to hardcode the backend URL.
-    - **Dependency Compatibility**: Fixed a version conflict between `sentence-transformers` and `huggingface-hub`.
+### Quick Start for HF Deployment:
+1. Create a new Space on Hugging Face (Docker SDK).
+2. Set `PORT=7860` in the Space variables.
+3. Configure your API keys (`LLM_API_KEY`, `QDRANT_API_KEY`, etc.) as Secrets.
+4. Point the Space to the `backend/Dockerfile` or a new root-level `Dockerfile` that combines both tiers.

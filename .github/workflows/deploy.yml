@@ -14,9 +14,9 @@ jobs:
       run:
         working-directory: docs-site
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v3
       with:
         node-version: '18'
         cache: 'npm'
@@ -31,7 +31,7 @@ jobs:
         DOCUSAURUS_BACKEND_API_URL: ${{ secrets.DOCUSAURUS_BACKEND_API_URL }}
 
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
+      uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs-site/build
@@ -44,9 +44,9 @@ jobs:
       run:
         working-directory: backend
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
         cache: 'pip'

@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import mimetypes
 from fastapi.responses import FileResponse
+import mimetypes
 from dotenv import load_dotenv
 import os
 from slowapi import Limiter, _rate_limit_exceeded_handler

@@ -6,7 +6,7 @@
 const config = {
   title: 'Physical AI Book',
   tagline: 'An Interactive Textbook for Robotics and AI',
-  favicon: 'img/favicon.svg',
+  favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
   url: 'http://localhost:3000/',
@@ -134,7 +134,7 @@ const config = {
 
 // Pass environment variables to the frontend
 const backendConfig = {
-  API_URL: process.env.DOCUSAURUS_BACKEND_API_URL || '',
+  API_URL: process.env.DOCUSAURUS_BACKEND_API_URL || 'http://localhost:8000',
 };
 
 // Extend themeConfig with backend configuration
@@ -146,7 +146,7 @@ config.themeConfig = {
 
 // Add custom fields to pass to the site
 config.customFields = {
-  BACKEND_API_URL: process.env.DOCUSAURUS_BACKEND_API_URL || '',
+  BACKEND_API_URL: process.env.DOCUSAURUS_BACKEND_API_URL || 'http://localhost:8000',
 };
 
 // Add a script to the head to configure the backend URL
@@ -158,7 +158,7 @@ config.headTags = [
     },
     innerHTML: `
       window.chatbotConfig = {
-        API_URL: "${process.env.DOCUSAURUS_BACKEND_API_URL || ''}"
+        API_URL: "${process.env.DOCUSAURUS_BACKEND_API_URL || 'http://localhost:8000'}"
       };
     `,
   }

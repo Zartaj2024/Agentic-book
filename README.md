@@ -1,12 +1,3 @@
----
-title: Physical AI Book
-emoji: 📖
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-pinned: false
----
-
 # Physical AI Book
 
 An interactive textbook that combines traditional educational content with AI-powered assistance for learning robotics and AI concepts.
