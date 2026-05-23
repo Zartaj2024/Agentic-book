@@ -14,9 +14,6 @@ jobs:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
           NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
         run: |
-          if [ "${{ github.event.action }}" == "opened" ]; then
-            echo "Creating Neon branch for PR #${{ github.event.pull_request.number }}"
-            # Implementation would use neon-cli or API
-          elif [ "${{ github.event.action }}" == "closed" ]; then
-            echo "Deleting Neon branch for PR #${{ github.event.pull_request.number }}"
+          if [ "${{ github.event.action }}" == "${{ github.event.action }}" ]; then
+            echo "Managing Neon branch for PR #${{ github.event.pull_request.number }}"
           fi

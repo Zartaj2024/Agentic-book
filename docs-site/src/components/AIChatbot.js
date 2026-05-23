@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './AIChatbot.css';
+import './AIChatbot.css'; // We'll create this CSS file separately
 
 const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = null }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,6 +20,7 @@ const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = nu
   useEffect(() => {
     if (selectedText) {
       setInputValue(selectedText);
+      // Optionally, open the chat if it's not already open
       if (!isOpen) {
         setIsOpen(true);
       }
@@ -29,6 +30,7 @@ const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = nu
   const handleSend = async () => {
     if (inputValue.trim() === '') return;
 
+    // Add user message
     const userMessage = {
       id: Date.now(),
       text: inputValue,
@@ -38,21 +40,25 @@ const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = nu
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
 
+    // Clear the selected text if it was used
     if (onTextSelected && selectedText) {
       onTextSelected(null);
     }
 
+    // Declare variables at function scope so they're available in both try and catch
     let fullUrl = '';
 
     try {
+      // Call the backend API - priority: props > window config > fallback
       const apiUrl = backendUrl ||
-                    (typeof window !== 'undefined' && window.chatbotConfig && window.chatbotConfig.API_URL ? window.chatbotConfig.API_URL : null);
+                    (typeof window !== 'undefined' && window.chatbotConfig ? window.chatbotConfig.API_URL : null) ||
+                    'http://localhost:8000';
 
-      if (apiUrl) {
-        fullUrl = apiUrl.endsWith('/api/v1/chat') ? apiUrl : `${apiUrl}/api/v1/chat`;
-      } else {
-        fullUrl = '/api/v1/chat';
-      }
+      // Ensure the URL has the correct path - backend uses /api/v1/chat
+      fullUrl = apiUrl.endsWith('/api/v1/chat') ? apiUrl : `${apiUrl}/api/v1/chat`;
+
+      // Check if we're making a request to a localhost URL during development
+      const isLocalhost = fullUrl.includes('localhost') || fullUrl.includes('127.0.0.1') || fullUrl.includes('0.0.0.0');
 
       const response = await fetch(fullUrl, {
         method: 'POST',
@@ -66,14 +72,7 @@ const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = nu
       });
 
       if (!response.ok) {
-        let errorDetail = '';
-        try {
-          const errorData = await response.json();
-          errorDetail = errorData.detail || errorData.message || JSON.stringify(errorData);
-        } catch (e) {
-          errorDetail = await response.text();
-        }
-        throw new Error(`API error: ${response.status} - ${errorDetail}`);
+        throw new Error(`API error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -84,17 +83,38 @@ const AIChatbot = ({ selectedText = null, onTextSelected = null, backendUrl = nu
       };
       setMessages(prev => [...prev, botResponse]);
 
+      // Store session ID for continuity
       if (data.session_id) {
         localStorage.setItem('session_id', data.session_id);
       }
     } catch (error) {
-      console.error('Chat API error:', error);
-      const botResponse = {
-        id: Date.now() + 1,
-        text: `Sorry, I encountered an error: ${error.message}`,
-        sender: 'bot'
-      };
-      setMessages(prev => [...prev, botResponse]);
+      console.error('Chat API error:', error); // Log the error for debugging
+
+      // Check if the error is related to network connectivity
+      const isNetworkError = error.name === 'TypeError' || error.message.includes('fetch') || error.message.includes('Failed to fetch');
+
+      if (isNetworkError) {
+        // If there's a network error, simulate a response with helpful information
+        const backendUrlToShow = fullUrl ? fullUrl.replace('/api/v1/chat', '') : (backendUrl || 'http://localhost:8000');
+        const botResponse = {
+          id: Date.now() + 1,
+          text: `I'm currently unable to connect to the AI tutor backend. This is likely because:\n1. The backend server is not running, or\n2. The server is running on a different URL.\n\nTo fix this:\n1. Make sure your backend is running on ${backendUrlToShow}\n2. Check that your backend is accessible\n\nIn the meantime, I can provide general assistance: The Physical AI Book is an interactive textbook that uses Retrieval Augmented Generation (RAG) to provide AI-based tutoring based on textbook content.`,
+          sender: 'bot'
+        };
+        setMessages(prev => [...prev, botResponse]);
+      } else {
+        // For other types of errors, show a more general error message
+        let errorMessage = `Sorry, I encountered an error connecting to the AI tutor.`;
+
+        errorMessage += ` Details: ${error.message}`;
+
+        const botResponse = {
+          id: Date.now() + 1,
+          text: errorMessage,
+          sender: 'bot'
+        };
+        setMessages(prev => [...prev, botResponse]);
+      }
     }
   };
 
