@@ -26,7 +26,6 @@ def test_gemini(api_key, model="gemini-2.0-flash"):
         print(f"❌ Request error: {str(e)}")
 
 if __name__ == "__main__":
-    # key = input("Paste your Gemini API Key: ").strip()
     key = os.getenv("LLM_API_KEY")
     if not key:
         print("No key provided in env LLM_API_KEY.")

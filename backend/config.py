@@ -16,14 +16,15 @@ class Config:
 
     # LLM configuration
     LLM_API_KEY: Optional[str] = os.getenv("LLM_API_KEY")
-    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "openai")  # Default to OpenAI
+    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "huggingface")  # Default to Hugging Face
     LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.3"))
     LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", "1000"))
 
     # Provider-specific models
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
     GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama3-70b-8192")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-pro")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+    HF_MODEL: str = os.getenv("HF_MODEL", "meta-llama/Llama-3.1-8B-Instruct")
 
     # Embedding configuration
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
@@ -45,12 +46,6 @@ class Config:
     INGEST_RATE_LIMIT: str = os.getenv("INGEST_RATE_LIMIT", "5/hour")
     MONITORING_RATE_LIMIT: str = os.getenv("MONITORING_RATE_LIMIT", "10/minute")
 
-    # Translation API configuration
-    TRANSLATION_API_KEY: Optional[str] = os.getenv("TRANSLATION_API_KEY")
-    TRANSLATION_PROVIDER: str = os.getenv("TRANSLATION_PROVIDER", "google")  # Default to Google
-    TRANSLATION_RATE_LIMIT: str = os.getenv("TRANSLATION_RATE_LIMIT", "50/hour")  # Limit translation requests
-    TRANSLATION_CACHE_TTL: int = int(os.getenv("TRANSLATION_CACHE_TTL", "86400"))  # Cache TTL in seconds (default 24 hours)
-
 # Validate required environment variables
 def validate_config():
     required_vars = ["QDRANT_URL", "DATABASE_URL", "LLM_API_KEY"]
@@ -61,7 +56,10 @@ def validate_config():
             missing_vars.append(var)
 
     if missing_vars:
-        raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+        # In production/deployment, we log a warning instead of crashing.
+        # This allows the app to serve the frontend textbook even if the AI backend isn't ready.
+        print(f"CRITICAL WARNING: Missing required environment variables: {', '.join(missing_vars)}")
+        print("The AI Chatbot functionality will be unavailable until these are set in the Space settings.")
 
 # Validate configuration on import
 validate_config()
